@@ -1,4 +1,4 @@
-const Filter = ({ filterName, setFilterName }) => {
+const Filter = ({filterName, setFilterName}) => {
     const handleFilterChange = (event) => {
         setFilterName(event.target.value)
     }

@@ -1,7 +1,10 @@
-const Persons = ({persons, filterName}) => {
+import personService from "../services/persons"
+
+const Persons = ({persons, setPersons, filterName}) => {
     const getFilteredList = () => {
         let filteredList = persons.filter((person) => person.name.toLowerCase().includes(filterName))
-        return filteredList.map(person => <Person key={person.id} person={person}/>)
+        return filteredList.map(person => <Person key={person.id} person={person} persons={persons}
+                                                  setPersons={setPersons}/>)
     }
 
     return (
@@ -11,9 +14,22 @@ const Persons = ({persons, filterName}) => {
     )
 }
 
-const Person = ({person}) => {
+const Person = ({person, persons, setPersons}) => {
+    const handleDelete = () => {
+        if (window.confirm(`Delete ${person.name}?`))
+            personService
+                .deleteById(person.id)
+                .then(() => {
+                    const updatedList = persons.filter(obj => obj.id !== person.id)
+                    setPersons(updatedList)
+                })
+    }
+
     return (
-        <li>{person.name} {person.number}</li>
+        <li>
+            {person.name} {person.number}
+            <button onClick={handleDelete}>delete</button>
+        </li>
     )
 }
 

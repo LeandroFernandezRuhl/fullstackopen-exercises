@@ -1,3 +1,5 @@
+import personService from "../services/persons"
+
 const PersonForm = ({newName, setNewName, newNumber, setNewNumber, persons, setPersons}) => {
 
     const handleNameChange = (event) => {
@@ -8,24 +10,46 @@ const PersonForm = ({newName, setNewName, newNumber, setNewNumber, persons, setP
         setNewNumber(event.target.value)
     }
 
-    const addName = (event) => {
+    const handleExistentPerson = (existentPerson) => {
+        if (window.confirm(`${existentPerson.name} is already added in the phonebook, replace the old number with a new one?`)) {
+            const updatedPerson = {...existentPerson, number: newNumber}
+            personService
+                .update(existentPerson.id, updatedPerson)
+                .then(returnedPerson => {
+                    setPersons(persons.map(person => person.id !== updatedPerson.id ? person : updatedPerson))
+                })
+        }
+    }
+
+    const addPerson = (event) => {
         event.preventDefault()
-        const personObject = {
+        const newPerson = {
             name: newName,
             number: newNumber,
-            id: persons.length + 1
+            id: Math.floor(Math.random() * 100000)
         }
-        if (persons.some(obj => personObject.name == obj.name || personObject.number == obj.number)) {
-            alert(`${personObject.name} or ${personObject.number} is already added in the phonebook`)
+
+        const existentPerson = persons.find(person => person.name === newPerson.name)
+        if (existentPerson) {
+            handleExistentPerson(existentPerson)
         } else {
-            setPersons(persons.concat(personObject))
-            setNewName("")
-            setNewNumber("")
+            personService
+                .create(newPerson)
+                .then(returnedPerson => {
+                    setPersons(persons.concat(returnedPerson))
+                    setNewName("")
+                    setNewNumber("")
+                })
+                .catch(error => {
+                    alert(
+                        `The id ${newPerson.id} already exists`
+                    )
+                })
         }
     }
 
     return (
-        <form onSubmit={addName}>
+        <form onSubmit={addPerson}>
             <div>
                 name: <input required value={newName} onChange={handleNameChange}/>
             </div>
