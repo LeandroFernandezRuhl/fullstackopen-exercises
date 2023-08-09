@@ -1,6 +1,6 @@
 import personService from "../services/persons"
 
-const PersonForm = ({newName, setNewName, newNumber, setNewNumber, persons, setPersons}) => {
+const PersonForm = ({newName, setNewName, newNumber, setNewNumber, persons, setPersons, setNotification}) => {
 
     const handleNameChange = (event) => {
         setNewName(event.target.value)
@@ -16,7 +16,30 @@ const PersonForm = ({newName, setNewName, newNumber, setNewNumber, persons, setP
             personService
                 .update(existentPerson.id, updatedPerson)
                 .then(returnedPerson => {
+                    setNotification({
+                        message: `${existentPerson.number} successfully changed to ${updatedPerson.number}`,
+                        causedByAnError: false
+                    })
+                    setTimeout(() => {
+                        setNotification({
+                            message: null,
+                            causedByAnError: false
+                        })
+                    }, 5000)
                     setPersons(persons.map(person => person.id !== updatedPerson.id ? person : updatedPerson))
+                })
+                .catch(error => {
+                    setNotification({
+                        message: `Information of ${existentPerson.name} has already been removed from the server`,
+                        causedByAnError: true
+                    })
+                    setTimeout(() => {
+                        setNotification({
+                            message: null,
+                            causedByAnError: false
+                        })
+                    }, 5000)
+                    setPersons(persons.filter(person => person.id !== existentPerson.id))
                 })
         }
     }
@@ -36,6 +59,17 @@ const PersonForm = ({newName, setNewName, newNumber, setNewNumber, persons, setP
             personService
                 .create(newPerson)
                 .then(returnedPerson => {
+                    setNotification({
+                        message: `${newPerson.name} successfully added to the phonebook`,
+                        causedByAnError: false
+                    })
+                    setTimeout(() => {
+                        setNotification({
+                            message: null,
+                            causedByAnError: false
+                        })
+                    }, 5000)
+
                     setPersons(persons.concat(returnedPerson))
                     setNewName("")
                     setNewNumber("")
