@@ -13,13 +13,14 @@ const asObject = (anecdote) => {
     return {
         content: anecdote,
         id: getId(),
+        important: true,
         votes: 0
     }
 }
 
 const initialState = anecdotesAtStart.map(asObject)
 
-const reducer = (state = initialState, action) => {
+const anecdoteReducer = (state = initialState, action) => {
     switch (action.type) {
         case 'VOTE':
             const id = action.payload.id
@@ -30,6 +31,16 @@ const reducer = (state = initialState, action) => {
             }
             return state.map(anecdote =>
                 anecdote.id !== id ? anecdote : changedAnecdote
+            )
+        case 'TOGGLE_IMPORTANCE':
+            const toggleId = action.payload.id
+            const anecdoteToToggle = state.find(n => n.id === toggleId)
+            const toggledAnecdote = {
+                ...anecdoteToToggle,
+                important: !anecdoteToToggle.important
+            }
+            return state.map(anecdote =>
+                anecdote.id !== toggleId ? anecdote : toggledAnecdote
             )
         case 'NEW_ANECDOTE':
             return state.concat(action.payload)
@@ -45,6 +56,15 @@ export const newAnecdote = (content) => {
     }
 }
 
+export const toggleImportance = (id) => {
+    return {
+        type: 'TOGGLE_IMPORTANCE',
+        payload: {
+            id: id
+        }
+    }
+}
+
 export const vote = (id) => {
     return {
         type: 'VOTE',
@@ -54,4 +74,4 @@ export const vote = (id) => {
     }
 }
 
-export default reducer
+export default anecdoteReducer
