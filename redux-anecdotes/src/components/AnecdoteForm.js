@@ -1,5 +1,6 @@
-import {newAnecdote} from "../reducers/anecdoteReducer";
 import {useDispatch} from "react-redux";
+import {createAnecdote} from "../reducers/anecdoteReducer";
+import {deleteNotification, newNoteNotification} from "../reducers/notificationReducer";
 
 const AnecdoteForm = () => {
     const dispatch = useDispatch()
@@ -7,7 +8,11 @@ const AnecdoteForm = () => {
         event.preventDefault()
         const content = event.target.anecdote.value
         event.target.anecdote.value = ''
-        dispatch(newAnecdote(content))
+        dispatch(createAnecdote(content))
+        dispatch(newNoteNotification(content))
+        setTimeout(() => {
+            dispatch(deleteNotification());
+        }, 5000); // 5000 milliseconds (5 seconds)
     }
 
     return (

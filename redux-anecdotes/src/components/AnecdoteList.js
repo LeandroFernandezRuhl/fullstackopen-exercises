@@ -1,31 +1,39 @@
-import {toggleImportance, vote} from "../reducers/anecdoteReducer";
+import {toggleImportanceOf, vote} from "../reducers/anecdoteReducer";
 import {useDispatch, useSelector} from "react-redux";
+import {deleteNotification, voteNotification} from "../reducers/notificationReducer";
 
 const AnecdoteList = () => {
-    const anecdotes = useSelector(state => {
-        if (state.filter === 'ALL')
-            return state.anecdotes
-        return state.filter === 'IMPORTANT'
-            ? state.anecdotes.filter(anecdote => anecdote.important)
-            : state.anecdotes.filter(anecdote => !anecdote.important)
-    })
-        .sort((a, b) => {
-            return a.votes - b.votes
-        })
     const dispatch = useDispatch()
+    const anecdotes = useSelector(({anecdotes, filter}) => {
+        if (filter === 'ALL')
+            return anecdotes
+        return filter === 'IMPORTANT'
+            ? anecdotes.filter(anecdote => anecdote.important)
+            : anecdotes.filter(anecdote => !anecdote.important)
+    })
+    const anecdotesCopy = [...anecdotes].sort((a, b) => {
+        return a.votes - b.votes; // Sort in descending order by votes
+    });
+    const handleVote = ({ content, id }) => {
+        dispatch(vote(id));
+        dispatch(voteNotification(content));
+        setTimeout(() => {
+            dispatch(deleteNotification());
+        }, 5000); // 5000 milliseconds (5 seconds)
+    }
 
     return (
         <>
             {
-                anecdotes.map(anecdote =>
+                anecdotesCopy.map(anecdote =>
                     <div key={anecdote.id}>
                         <div>
                             {anecdote.content}
                         </div>
                         <div>
                             has {anecdote.votes}
-                            <button onClick={() => dispatch(vote(anecdote.id))}>vote</button>
-                            <button onClick={() => dispatch(toggleImportance(anecdote.id))}>toggle importance</button>
+                            <button onClick={() => handleVote(anecdote)}>vote</button>
+                            <button onClick={() => dispatch(toggleImportanceOf(anecdote.id))}>toggle importance</button>
                         </div>
                     </div>
                 )
