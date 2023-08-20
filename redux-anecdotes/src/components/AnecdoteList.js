@@ -17,6 +17,9 @@ const AnecdoteList = () => {
     const handleVote = (anecdote) => {
         dispatch(voteAnecdote(anecdote));
         dispatch(setNotification(`you voted '${anecdote.content}'`));
+        //if I wanted to ensure that the vote goes through before showing feedback to the user
+        //dispatch(SetNotification(... should be moved inside the voteAnecdote thunk and
+        //await for the completion of dispatch(vote(updatedAnecdote))
     }
 
     return (
