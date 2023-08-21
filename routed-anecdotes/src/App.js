@@ -1,5 +1,6 @@
 import {useState} from 'react'
 import {Link, Route, Routes, useMatch, useNavigate} from "react-router-dom";
+import {useField} from "./hooks";
 
 const Menu = () => {
     const padding = {
@@ -62,24 +63,24 @@ const Footer = () => (
     </div>
 )
 
-const CreateNew = (props) => {
-    const [content, setContent] = useState('')
-    const [author, setAuthor] = useState('')
-    const [info, setInfo] = useState('')
-    const navigate = useNavigate()
+const CreateNew = ({ addNew, createNotification }) => {
+    const {reset: resetContent, ...contentField} = useField('text');
+    const {reset: resetAuthor, ...authorField} = useField('text');
+    const {reset: resetInfo, ...infoField} = useField('text');
 
+    const navigate = useNavigate();
 
     const handleSubmit = (e) => {
-        e.preventDefault()
-        props.addNew({
-            content,
-            author,
-            info,
-            votes: 0
-        })
-        props.createNotification(`A new anecdote "${content}" was added!`)
-        navigate('/')
-    }
+        e.preventDefault();
+        addNew({
+            content: contentField.value,
+            author: authorField.value,
+            info: infoField.value,
+            votes: 0,
+        });
+        createNotification(`A new anecdote "${contentField.value}" was added!`);
+        navigate('/');
+    };
 
     return (
         <div>
@@ -87,26 +88,30 @@ const CreateNew = (props) => {
             <form onSubmit={handleSubmit}>
                 <div>
                     content
-                    <input name='content' value={content} onChange={(e) => setContent(e.target.value)}/>
+                    <input {...contentField} />
                 </div>
                 <div>
                     author
-                    <input name='author' value={author} onChange={(e) => setAuthor(e.target.value)}/>
+                    <input {...authorField} />
                 </div>
                 <div>
                     url for more info
-                    <input name='info' value={info} onChange={(e) => setInfo(e.target.value)}/>
+                    <input {...infoField} />
                 </div>
-                <button>create</button>
+                <button type="submit">create</button>
+                <button type="reset" onClick={() => {
+                    resetContent()
+                    resetAuthor()
+                    resetInfo()
+                }}>reset</button>
             </form>
         </div>
-    )
+    );
+};
 
-}
 
 const Notification = ({message, active}) => {
     if (active) {
-        console.log(message)
         return (
             <div>{message}</div>
         )
